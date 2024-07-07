@@ -8,10 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,9 +27,13 @@ import androidx.navigation.NavHostController
 @Composable
 fun AddTodoScreen(
     navController: NavHostController,
+    timerSettingViewModel: TimerSettingViewModel = viewModel(factory = TimerSettingViewModelFactory(LocalContext.current.applicationContext as Application)),
     todoViewModel: TodoViewModel = viewModel(factory = TodoViewModelFactory(LocalContext.current.applicationContext as Application))
 ) {
     var title by remember { mutableStateOf("") }
+    var duration by remember { mutableStateOf("") }
+
+    val defaultTimerTime by timerSettingViewModel.defaultTimerTime.observeAsState(initial = 25)
 
     Column(
         modifier = Modifier
@@ -37,7 +42,7 @@ fun AddTodoScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextField(
+        OutlinedTextField(
             value = title,
             onValueChange = { title = it },
             label = { Text("Todo Title") },
@@ -46,9 +51,19 @@ fun AddTodoScreen(
                 .padding(8.dp)
         )
 
+        OutlinedTextField(
+            value = duration,
+            onValueChange = { duration = it },
+            label = { Text("Duration (minutes)") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
+
         Button(onClick = {
             if (title.isNotBlank()) {
-                todoViewModel.insertTodo(Todo(title = title, isCompleted = false))
+                val todoDuration = duration.toIntOrNull() ?: defaultTimerTime
+                todoViewModel.insertTodo(Todo(title = title, duration = todoDuration, isCompleted = false))
                 navController.navigate("todos") // Navigate back to the todo list after adding
             }
         }) {

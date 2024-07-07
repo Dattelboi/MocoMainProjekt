@@ -69,20 +69,24 @@ fun HomeScreen(
         }
 
         Text(text = "Todo List", style = MaterialTheme.typography.headlineSmall)
-        LazyColumn(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+        LazyColumn(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)) {
             items(todos) { todo ->
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = todo.title, style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "${todo.title} (${todo.duration} min)", style = MaterialTheme.typography.bodyMedium)
                     Button(onClick = {
                         scope.launch {
                             if (timerState.isRunning) {
                                 timerViewModel.stopTimer()
                             } else {
-                                timerViewModel.startTimer(todo.title)
+                                timerViewModel.startTimer(todo.title, todo.duration)
                             }
                         }
                     }) {

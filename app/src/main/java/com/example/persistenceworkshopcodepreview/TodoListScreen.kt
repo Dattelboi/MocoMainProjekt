@@ -4,16 +4,18 @@ import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,9 +35,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun TodoListScreen(
     navController: NavHostController,
+    timerSettingViewModel: TimerSettingViewModel = viewModel(factory = TimerSettingViewModelFactory(LocalContext.current.applicationContext as Application)),
     todoViewModel: TodoViewModel = viewModel(factory = TodoViewModelFactory(LocalContext.current.applicationContext as Application))
 ) {
-    val todos by todoViewModel.allTodos.observeAsState(initial = emptyList())
+    var title by remember { mutableStateOf("") }
+    var duration by remember { mutableStateOf("") }
+
+    val defaultTimerTime by timerSettingViewModel.defaultTimerTime.observeAsState(initial = 25)
+    val todos by todoViewModel.allTodos.observeAsState(emptyList())
     val scope = rememberCoroutineScope()
 
     Column(
@@ -45,11 +52,7 @@ fun TodoListScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Todo List", style = MaterialTheme.typography.headlineMedium)
-
-        var title by remember { mutableStateOf("") }
-
-        TextField(
+        OutlinedTextField(
             value = title,
             onValueChange = { title = it },
             label = { Text("Todo Title") },
@@ -58,25 +61,47 @@ fun TodoListScreen(
                 .padding(8.dp)
         )
 
+        OutlinedTextField(
+            value = duration,
+            onValueChange = { duration = it },
+            label = { Text("Duration (minutes)") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
+
         Button(onClick = {
             if (title.isNotBlank()) {
-                todoViewModel.insertTodo(Todo(title = title, isCompleted = false))
+                val todoDuration = duration.toIntOrNull() ?: defaultTimerTime
+                todoViewModel.insertTodo(Todo(title = title, duration = todoDuration, isCompleted = false))
                 title = ""
+                duration = ""
             }
         }) {
             Text("Add Todo")
         }
 
-        LazyColumn(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyColumn {
             items(todos) { todo ->
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = todo.title, style = MaterialTheme.typography.bodyMedium)
-                    Button(onClick = { scope.launch { todoViewModel.delete(todo) } }) {
-                        Text(text = "Delete")
+                    Column {
+                        Text(text = todo.title, style = MaterialTheme.typography.bodyMedium)
+                        Text(text = "Duration: ${todo.duration} minutes", style = MaterialTheme.typography.bodySmall)
+                    }
+                    Button(onClick = {
+                        scope.launch {
+                            todoViewModel.delete(todo)
+                        }
+                    }) {
+                        Text("Delete")
                     }
                 }
             }

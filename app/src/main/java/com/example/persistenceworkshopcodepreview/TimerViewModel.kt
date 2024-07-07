@@ -55,8 +55,8 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun startTimer(task: String? = null) {
-        val time = (defaultTimerTime.value ?: 25) * 60 * 1000L
+    fun startTimer(task: String? = null, duration: Int? = null) {
+        val time = (duration ?: defaultTimerTime.value ?: 25) * 60 * 1000L
         _timerState.value = TimerState(true, time, task)
 
         countDownTimer = object : CountDownTimer(time, 1000) {
@@ -69,6 +69,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             }
         }.start()
     }
+
 
     fun stopTimer() {
         countDownTimer?.cancel()
