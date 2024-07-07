@@ -68,6 +68,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.6.0")
     implementation("androidx.preference:preference-ktx:1.2.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation(libs.androidx.runtime.livedata)
 
     // Compose dependencies
     val composeVersion = "1.4.3"

@@ -1,38 +1,36 @@
-package com.example.persistenceworkshopcodepreview.ui
+package com.example.persistenceworkshopcodepreview.ui.theme
 
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
         BottomNavItem.Home,
         BottomNavItem.Settings
     )
-    BottomNavigation {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
+
+    NavigationBar {
+        val navBackStackEntry = navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry.value?.destination?.route
         items.forEach { item ->
-            BottomNavigationItem(
-                icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
+            NavigationBarItem(
+                icon = { Icon(item.icon, contentDescription = item.title) },
                 label = { Text(item.title) },
                 selected = currentRoute == item.route,
                 onClick = {
                     navController.navigate(item.route) {
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) {
-                                saveState = true
-                            }
+                        navController.graph.startDestinationRoute?.let { startDestination ->
+                            popUpTo(startDestination) { saveState = true }
                         }
                         launchSingleTop = true
                         restoreState = true
@@ -43,7 +41,7 @@ fun BottomNavigationBar(navController: NavController) {
     }
 }
 
-sealed class BottomNavItem(var title: String, var icon: ImageVector, var route: String) {
-    object Home : BottomNavItem("Home", Icons.Default.Home, "home")
-    object Settings : BottomNavItem("Settings", Icons.Default.Settings, "settings")
+sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: String) {
+    object Home : BottomNavItem("home", Icons.Default.Home, "Home")
+    object Settings : BottomNavItem("settings", Icons.Default.Settings, "Settings")
 }

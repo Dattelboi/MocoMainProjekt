@@ -1,7 +1,11 @@
 package com.example.persistenceworkshopcodepreview
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,6 +35,9 @@ class TimerSettingViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch(Dispatchers.IO) {
             val timerSetting = TimerSetting(id = 1, defaultTimerTime = newTimerTime.toLong())
             repository.insertTimerSetting(timerSetting)
+            withContext(Dispatchers.Main) {
+                defaultTimerTime.value = newTimerTime
+            }
         }
     }
 
