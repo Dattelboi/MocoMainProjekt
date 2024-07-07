@@ -1,7 +1,8 @@
-package com.example.persistenceworkshopcodepreview.ui.theme
+package com.example.persistenceworkshopcodepreview
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -16,21 +17,27 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
         BottomNavItem.Home,
-        BottomNavItem.Settings
+        BottomNavItem.Settings,
+        BottomNavItem.Todos
     )
-
     NavigationBar {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry.value?.destination?.route
         items.forEach { item ->
             NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = item.title) },
-                label = { Text(item.title) },
+                icon = {
+                    Icon(item.icon, contentDescription = item.title)
+                },
+                label = {
+                    Text(text = item.title)
+                },
                 selected = currentRoute == item.route,
                 onClick = {
                     navController.navigate(item.route) {
-                        navController.graph.startDestinationRoute?.let { startDestination ->
-                            popUpTo(startDestination) { saveState = true }
+                        navController.graph.startDestinationRoute?.let { route ->
+                            popUpTo(route) {
+                                saveState = true
+                            }
                         }
                         launchSingleTop = true
                         restoreState = true
@@ -41,7 +48,8 @@ fun BottomNavigationBar(navController: NavHostController) {
     }
 }
 
-sealed class BottomNavItem(val route: String, val icon: ImageVector, val title: String) {
-    object Home : BottomNavItem("home", Icons.Default.Home, "Home")
-    object Settings : BottomNavItem("settings", Icons.Default.Settings, "Settings")
+sealed class BottomNavItem(var title: String, var icon: ImageVector, var route: String) {
+    object Home : BottomNavItem("Home", Icons.Default.Home, "home")
+    object Settings : BottomNavItem("Settings", Icons.Default.Settings, "settings")
+    object Todos : BottomNavItem("Todos", Icons.Default.List, "todos")
 }
