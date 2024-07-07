@@ -1,17 +1,22 @@
 package com.example.persistenceworkshopcodepreview
 
 import android.app.Application
+import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+data class TimerState(val isRunning: Boolean, val timeLeft: Long, val taskTitle: String?)
 class TimerViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: TimerSettingRepository
     val defaultTimerTime: MutableLiveData<Int> = MutableLiveData()
-    var timerState: MutableLiveData<Boolean> = MutableLiveData(false)
+    private val _timerState = MutableLiveData(TimerState(false, 0L, null))
+    val timerState: LiveData<TimerState> = _timerState
+    private var countDownTimer: CountDownTimer? = null
 
     init {
         val timerSettingDao = AppDatabase.getDatabase(application).timerSettingDao()
@@ -51,12 +56,28 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startTimer(task: String? = null) {
-        timerState.value = true
-        // Start your timer logic here
+        val time = (defaultTimerTime.value ?: 25) * 60 * 1000L
+        _timerState.value = TimerState(true, time, task)
+
+        countDownTimer = object : CountDownTimer(time, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                _timerState.value = _timerState.value?.copy(timeLeft = millisUntilFinished)
+            }
+
+            override fun onFinish() {
+                _timerState.value = TimerState(false, 0L, task)
+            }
+        }.start()
     }
 
     fun stopTimer() {
-        timerState.value = false
-        // Stop your timer logic here
+        countDownTimer?.cancel()
+        _timerState.value = TimerState(false, 0L, _timerState.value?.taskTitle)
+        resetTimer()
+    }
+
+    private fun resetTimer() {
+        val time = (defaultTimerTime.value ?: 25) * 60 * 1000L
+        _timerState.value = TimerState(false, time, _timerState.value?.taskTitle)
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -31,8 +32,14 @@ fun SettingsScreen(
     navController: NavHostController,
     timerSettingViewModel: TimerSettingViewModel = viewModel(factory = TimerSettingViewModelFactory(LocalContext.current.applicationContext as Application))
 ) {
-    val defaultTimerTime by timerSettingViewModel.defaultTimerTime.observeAsState(initial = 25)
-    var newTimerTime by remember { mutableStateOf(defaultTimerTime.toString()) }
+    val defaultTimerTime by timerSettingViewModel.defaultTimerTime.observeAsState(initial = null)
+    var newTimerTime by remember { mutableStateOf("") }
+
+    LaunchedEffect(defaultTimerTime) {
+        defaultTimerTime?.let {
+            newTimerTime = it.toString()
+        }
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
