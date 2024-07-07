@@ -83,6 +83,7 @@ dependencies {
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.material:material-icons-extended:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
     
     // KSP
     ksp("androidx.room:room-compiler:2.5.2")

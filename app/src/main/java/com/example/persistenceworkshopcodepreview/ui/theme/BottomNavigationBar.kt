@@ -7,8 +7,10 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -20,16 +22,18 @@ fun BottomNavigationBar(navController: NavHostController) {
         BottomNavItem.Settings,
         BottomNavItem.Todos
     )
-    NavigationBar {
+    NavigationBar(
+        containerColor = Color(0xFF038cfc) // Blau mit Grau-Anteil
+    ) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry.value?.destination?.route
         items.forEach { item ->
             NavigationBarItem(
                 icon = {
-                    Icon(item.icon, contentDescription = item.title)
+                    Icon(item.icon, contentDescription = item.title, tint = Color.White)
                 },
                 label = {
-                    Text(text = item.title)
+                    Text(text = item.title, color = Color.White)
                 },
                 selected = currentRoute == item.route,
                 onClick = {
@@ -42,7 +46,14 @@ fun BottomNavigationBar(navController: NavHostController) {
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    unselectedIconColor = Color.White,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = Color.White,
+                    indicatorColor = Color.Transparent
+                )
             )
         }
     }

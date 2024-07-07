@@ -8,9 +8,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.navigation.compose.rememberNavController
 import com.example.persistenceworkshopcodepreview.ui.theme.PersistenceWorkshopTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -18,6 +23,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PersistenceWorkshopTheme {
+                // Set system bar colors
+                SetSystemBarColors()
+
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colorScheme.background) {
                     val navController = rememberNavController()
@@ -31,5 +39,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SetSystemBarColors() {
+    val systemUiController = rememberSystemUiController()
+    val useDarkIcons = MaterialTheme.colorScheme.background.luminance() > 0.5f
+
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = Color(0xFF32547a), // Blau mit Grau Anteil
+            darkIcons = useDarkIcons
+        )
     }
 }
