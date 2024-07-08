@@ -10,12 +10,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-data class TimerState(val isRunning: Boolean, val timeLeft: Long, val taskTitle: String?)
+data class TimerState(
+    val isRunning: Boolean,
+    val timeLeft: Long,
+    val title: String? = null
+)
+
 class TimerViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: TimerSettingRepository
-    val defaultTimerTime: MutableLiveData<Int> = MutableLiveData()
-    private val _timerState = MutableLiveData(TimerState(false, 0L, null))
-    val timerState: LiveData<TimerState> = _timerState
+    val defaultTimerTime: LiveData<Int>
+        get() = _defaultTimerTime
+    private val _defaultTimerTime = MutableLiveData<Int>()
+
+    val timerState: LiveData<TimerState>
+        get() = _timerState
+    private val _timerState = MutableLiveData<TimerState>()
+
     private var countDownTimer: CountDownTimer? = null
 
     init {
@@ -29,7 +39,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             withContext(Dispatchers.IO) {
                 val timerSetting = repository.getTimerSetting()
                 withContext(Dispatchers.Main) {
-                    defaultTimerTime.value = timerSetting?.defaultTimerTime?.toInt() ?: 25
+                    _defaultTimerTime.value = timerSetting?.defaultTimerTime?.toInt() ?: 25
                 }
             }
         }
@@ -55,9 +65,10 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun startTimer(task: String? = null, duration: Int? = null) {
-        val time = (duration ?: defaultTimerTime.value ?: 25) * 60 * 1000L
-        _timerState.value = TimerState(true, time, task)
+    fun startTimer(todoTitle: String? = null, todoDuration: Int? = null) {
+        val duration = todoDuration ?: (_defaultTimerTime.value ?: 25)
+        val time = duration * 60 * 1000L
+        _timerState.value = TimerState(true, time, todoTitle)
 
         countDownTimer = object : CountDownTimer(time, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -65,7 +76,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onFinish() {
-                _timerState.value = TimerState(false, 0L, task)
+                _timerState.value = TimerState(false, 0L, todoTitle)
             }
         }.start()
     }
@@ -73,12 +84,6 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
 
     fun stopTimer() {
         countDownTimer?.cancel()
-        _timerState.value = TimerState(false, 0L, _timerState.value?.taskTitle)
-        resetTimer()
-    }
-
-    private fun resetTimer() {
-        val time = (defaultTimerTime.value ?: 25) * 60 * 1000L
-        _timerState.value = TimerState(false, time, _timerState.value?.taskTitle)
+        _timerState.value = _timerState.value?.copy(isRunning = false)
     }
 }

@@ -4,13 +4,19 @@ import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +39,7 @@ fun HomeScreen(
     timerViewModel: TimerViewModel = viewModel(factory = TimerViewModelFactory(LocalContext.current.applicationContext as Application))
 ) {
     val todos by todoViewModel.allTodos.observeAsState(emptyList())
-    val timerState by timerViewModel.timerState.observeAsState(TimerState(false, (timerViewModel.defaultTimerTime.value ?: 25) * 60 * 1000L, null))
+    val timerState by timerViewModel.timerState.observeAsState(TimerState(false, (timerViewModel.defaultTimerTime.value ?: 25) * 60 * 1000L))
     val defaultTimerTime by timerViewModel.defaultTimerTime.observeAsState(25)
     val scope = rememberCoroutineScope()
 
@@ -41,7 +47,7 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Pomodoro Timer", style = MaterialTheme.typography.headlineMedium)
@@ -50,7 +56,7 @@ fun HomeScreen(
             text = if (timerState.isRunning) {
                 "Time Left: ${timerState.timeLeft / 1000 / 60}:${(timerState.timeLeft / 1000 % 60).toString().padStart(2, '0')}"
             } else {
-                "Default Time: ${defaultTimerTime}:00"
+                "${defaultTimerTime}:00"
             },
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(8.dp)
@@ -68,10 +74,14 @@ fun HomeScreen(
             Text(text = if (timerState.isRunning) "Stop Timer" else "Start Timer")
         }
 
+        Spacer(modifier = Modifier.height(64.dp))
+
         Text(text = "Todo List", style = MaterialTheme.typography.headlineSmall)
-        LazyColumn(modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
             items(todos) { todo ->
                 Row(
                     modifier = Modifier
@@ -90,7 +100,11 @@ fun HomeScreen(
                             }
                         }
                     }) {
-                        Text(text = if (timerState.isRunning) "Stop Timer" else "Start Timer")
+                        if (timerState.isRunning && timerState.timeLeft > 0) {
+                            Icon(imageVector = Icons.Default.Stop, contentDescription = "Stop Timer")
+                        } else {
+                            Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Start Timer")
+                        }
                     }
                 }
             }
