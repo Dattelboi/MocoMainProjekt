@@ -13,6 +13,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.persistenceworkshopcodepreview.ui.theme.PersistenceWorkshopTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         setContent {
             PersistenceWorkshopTheme {
                 // Set system bar colors

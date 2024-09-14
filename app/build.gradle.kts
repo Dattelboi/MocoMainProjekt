@@ -70,6 +70,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation("androidx.navigation:navigation-compose:2.6.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.firebase.firestore.ktx)
 
