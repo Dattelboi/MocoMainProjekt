@@ -1,7 +1,13 @@
 package com.example.persistenceworkshopcodepreview
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import android.os.CountDownTimer
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -81,9 +87,40 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         }.start()
     }
 
-
     fun stopTimer() {
         countDownTimer?.cancel()
         _timerState.value = _timerState.value?.copy(isRunning = false)
     }
+
+    fun sendTimerNotification() {
+        val channelId = "timer_channel"
+        val notificationId = 1
+
+        // Create the NotificationChannel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Timer Channel"
+            val descriptionText = "Channel for Timer Notifications"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(channelId, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getApplication<Application>().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        // Build the notification
+        val builder = NotificationCompat.Builder(getApplication(), channelId)
+            .setSmallIcon(R.drawable.pomidorek)
+            .setContentTitle("Timer still running!")
+            .setContentText("Your timer is still running in the background.") // Add time left
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        println(countDownTimer?.toString())
+        // Show the notification
+        with(NotificationManagerCompat.from(getApplication())) {
+            notify(notificationId, builder.build())
+        }
+    }
+
 }
