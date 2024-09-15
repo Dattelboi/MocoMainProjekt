@@ -1,5 +1,7 @@
 package com.example.persistenceworkshopcodepreview
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,11 +15,14 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.example.persistenceworkshopcodepreview.ui.theme.PersistenceWorkshopTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import android.Manifest
 
 class MainActivity : ComponentActivity() {
     private lateinit var timerViewModel: TimerViewModel
@@ -30,6 +35,12 @@ class MainActivity : ComponentActivity() {
         timerViewModel = ViewModelProvider(this).get(TimerViewModel::class.java)
 
         lifecycle.addObserver(TimerLifecycleObserver(timerViewModel))
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+            }
+        }
 
         setContent {
             PersistenceWorkshopTheme {
