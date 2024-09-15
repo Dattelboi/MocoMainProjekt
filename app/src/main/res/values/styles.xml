@@ -2,7 +2,7 @@
 <resources>
     <style name="Theme.mSplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/pomidorek</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_inset</item>
         <item name="postSplashScreenTheme">@style/Theme.PersistenceWorkshopCodePreview</item>
     </style>
     <!-- Base application theme -->
