@@ -15,6 +15,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.util.Log
 
 data class TimerState(
     val isRunning: Boolean,
@@ -79,10 +80,12 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         countDownTimer = object : CountDownTimer(time, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 _timerState.value = _timerState.value?.copy(timeLeft = millisUntilFinished)
+                sendTimerNotification()
             }
 
             override fun onFinish() {
                 _timerState.value = TimerState(false, 0L, todoTitle)
+                sendTimerNotification()
             }
         }.start()
     }
@@ -109,11 +112,19 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             notificationManager.createNotificationChannel(channel)
         }
 
+        // remaining time
+        val timeLeft = _timerState.value?.timeLeft ?: 0L
+        val minutes = timeLeft / 1000 / 60
+        val seconds = (timeLeft / 1000) % 60
+        val timeString = String.format("%02d:%02d", minutes, seconds)
+        var title = if(minutes == 0L && seconds == 0L)"Time for a break!" else    "Timer still running!"
+
+
         // Build the notification
         val builder = NotificationCompat.Builder(getApplication(), channelId)
             .setSmallIcon(R.drawable.pomidorek)
-            .setContentTitle("Timer still running!")
-            .setContentText("Your timer is still running in the background.") // Add time left
+            .setContentTitle(title)
+            .setContentText("Your timer is at $timeString")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
         println(countDownTimer?.toString())
