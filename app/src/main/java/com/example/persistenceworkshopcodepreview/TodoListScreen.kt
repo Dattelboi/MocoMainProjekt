@@ -72,7 +72,7 @@ fun TodoListScreen(
 
         Button(onClick = {
             if (title.isNotBlank()) {
-                val todoDuration = duration.toIntOrNull() ?: defaultTimerTime
+                val todoDuration = duration.toIntOrNull()?.takeIf { it >= 0 } ?: defaultTimerTime
                 todoViewModel.insertTodo(Todo(title = title, duration = todoDuration, isCompleted = false))
                 title = ""
                 duration = ""
