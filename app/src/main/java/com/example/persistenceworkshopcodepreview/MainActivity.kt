@@ -14,15 +14,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.example.persistenceworkshopcodepreview.ui.theme.PersistenceWorkshopTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 class MainActivity : ComponentActivity() {
+    private lateinit var timerViewModel: TimerViewModel
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
+
+        timerViewModel = ViewModelProvider(this).get(TimerViewModel::class.java)
+
+        lifecycle.addObserver(TimerLifecycleObserver(timerViewModel))
+
         setContent {
             PersistenceWorkshopTheme {
                 // Set system bar colors
